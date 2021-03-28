@@ -3,7 +3,7 @@ import random
 import keyboard
 import time
 directory = os.path.abspath(os.curdir)
-files = os.listdir(path=directory + "\levels")
+files = os.listdir(path=directory + "/levels")
 
 class Game:
     def __init__(self):
@@ -15,7 +15,7 @@ class Game:
         self.scores = 0
 
     def create_level(self, num_level):
-        with open(directory + '\levels\\' + str(num_level) + '.txt') as file:
+        with open(directory + '/levels/'+str(num_level) + '.txt') as file:
             self.level.append([])
             for j in file.read():
                 if j == '#':
@@ -114,7 +114,7 @@ class Game:
                 if self.cat_position == self.exit_position:
                     break
                 self.scores -= 15
-                os.system('cls')
+                os.system('clear')
                 self.print_level()
                 self.new_list_level_cat()
                 self.scores -= 15
@@ -123,13 +123,13 @@ class Game:
             if self.cat_position == self.exit_position:
                 break
             self.new_list_level_mouse()
-            os.system('cls')
+            os.system('clear')
 
 #TODO:// на перспективу дописать хождение собаки, и чтобы вообще всё красиво, 9 жизней и визуал интерфейс
 
 if __name__ == '__main__':
-    os.system('cls')
+    os.system('clear')
     Game().game()
-    os.system('cls')
+    os.system('clear')
     print('GG')
     time.sleep(5)
