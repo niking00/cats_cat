@@ -65,12 +65,13 @@ class Game:
                        'left': [x, y - 1]}  # влево
         if key in orientation:
             while True:
-                if self.level[orientation[key][0]][orientation[key][1]] in ('███', '[ ]'):
-                    if self.level[orientation[key][0]][orientation[key][1]] == '[ ]' and len(self.mouse_position) == 0:
+                object = self.level[orientation[key][0]][orientation[key][1]]
+                if object in ('███', '[ ]'):
+                    if object == '[ ]' and len(self.mouse_position) == 0:
                         self.level[orientation[key][0]][orientation[key][1]] = ' 0 '
                     else:
                         key = keyboard.read_key()
-                elif self.level[orientation[key][0]][orientation[key][1]] == '(m)':
+                elif object == '(m)':
                     self.level[orientation[key][0]][orientation[key][1]] = '15 '
                 else:
                     break
@@ -90,10 +91,8 @@ class Game:
             new_posistion = random.choice(['up', 'right', 'down', 'left'])
             object = self.level[orientation[new_posistion][0]][orientation[new_posistion][1]]
             while True:
-                if self.level[orientation['up'][0]][orientation['up'][1]] in ('███', 'cat', '(m)', 'dog', '[ ]') and\
-                   self.level[orientation['right'][0]][orientation['right'][1]] in ('███', 'cat', '(m)', 'dog', '[ ]') and\
-                   self.level[orientation['down'][0]][orientation['down'][1]] in ('███', 'cat', '(m)', 'dog', '[ ]') and\
-                   self.level[orientation['left'][0]][orientation['left'][1]] in ('███', 'cat', '(m)', 'dog', '[ ]'):
+                if [True for j in ['up', 'right', 'down', 'left'] if self.level[orientation[j][0]][orientation[j][1]]
+                                                                  in ('███', 'cat', '(m)', 'dog', '[ ]')] == [True]*4:
                     new_posistion = 'stop'
                     break
                 elif object in ('███', 'cat', '(m)', 'dog', '[ ]'):
