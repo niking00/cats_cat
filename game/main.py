@@ -5,6 +5,15 @@ import time
 directory = os.path.abspath(os.curdir)
 files = os.listdir(path=directory + "\levels")
 
+DICT_OBJECTS = {'#': '███',
+           'c': 'cat',
+           'm': '(m)',
+           'd': 'dog',
+           ']': '[ ]'}
+OBJECTS = ('███', 'cat', '(m)', 'dog', '[ ]')
+DIRECTIONS = ['up', 'right', 'down', 'left']
+
+
 class Game:
     def __init__(self):
         self.cat_position = []
@@ -18,19 +27,10 @@ class Game:
         with open(directory + '\levels\\' + str(num_level) + '.txt') as file:
             self.level.append([])
             for j in file.read():
-                if j == '#':
-                    self.level[-1].append('███')
+                if j in DICT_OBJECTS:
+                    self.level[-1].append(DICT_OBJECTS[j])
                 elif j == '.':
                     self.level[-1].append(f' {random.randint(1, 9)} ')
-                elif j == 'c':
-                    self.level[-1].append('cat')
-                elif j == 'm':
-                    self.level[-1].append('(m)')
-                elif j == 'd':
-                    self.level[-1].append('dog')
-                elif j == ']':
-                    self.level[-1].append('[ ]')
-                    self.exit_position = [self.level.index(self.level[-1]), self.level[-1].index('[ ]')]
                 else:
                     self.level.append([])
 
@@ -54,54 +54,52 @@ class Game:
                     self.mouse_position += [x, y]
                 elif self.level[x][y] == 'dog':
                     self.dog_position += [x, y]
+                elif self.level[x][y] == '[ ]':
+                    self.exit_position = [x, y]
+
+    def orientation(self, x, y):
+        return {'up': [x - 1, y],
+                'right': [x, y + 1],
+                'down': [x + 1, y],
+                'left': [x, y - 1],
+                'stop':  [x, y]}
 
     def new_list_level_cat(self):
         key = keyboard.read_key()
         time.sleep(0.25)
         x, y = self.cat_position[0], self.cat_position[1]
-        orientation = {'up': [x - 1, y],  # вверх
-                       'right': [x, y + 1],  # направо
-                       'down': [x + 1, y],  # вниз
-                       'left': [x, y - 1]}  # влево
-        if key in orientation:
+        if key in self.orientation(x, y):
             while True:
-                object = self.level[orientation[key][0]][orientation[key][1]]
+                object = self.level[self.orientation(x, y)[key][0]][self.orientation(x, y)[key][1]]
                 if object in ('███', '[ ]'):
                     if object == '[ ]' and len(self.mouse_position) == 0:
-                        self.level[orientation[key][0]][orientation[key][1]] = ' 0 '
+                        self.level[self.orientation(x, y)[key][0]][self.orientation(x, y)[key][1]] = ' 0 '
                     else:
                         key = keyboard.read_key()
                 elif object == '(m)':
-                    self.level[orientation[key][0]][orientation[key][1]] = '15 '
+                    self.level[self.orientation(x, y)[key][0]][self.orientation(x, y)[key][1]] = '15 '
                 else:
                     break
             self.level[x][y] = f' {random.randint(1, 9)} '
-            self.scores += int(self.level[orientation[key][0]][orientation[key][1]].strip())
-            self.level[orientation[key][0]][orientation[key][1]] = 'cat'
+            self.scores += int(self.level[self.orientation(x, y)[key][0]][self.orientation(x, y)[key][1]].strip())
+            self.level[self.orientation(x, y)[key][0]][self.orientation(x, y)[key][1]] = 'cat'
             self.check_positions()
 
     def new_list_level_mouse(self):
         for i in range(0, len(self.mouse_position), 2):
             x, y = self.mouse_position[i], self.mouse_position[i+1]
-            orientation = {'up':    [x - 1, y],  # вверх
-                           'right': [x, y + 1],  # направо
-                           'down':  [x + 1, y],  # вниз
-                           'left':  [x, y - 1],  # влево
-                           'stop':  [x, y]}
-            new_posistion = random.choice(['up', 'right', 'down', 'left'])
-            object = self.level[orientation[new_posistion][0]][orientation[new_posistion][1]]
+            new_posistion = random.choice(DIRECTIONS)
+            object = lambda pos: self.level[self.orientation(x, y)[pos][0]][self.orientation(x, y)[pos][1]]
             while True:
-                if [True for j in ['up', 'right', 'down', 'left'] if self.level[orientation[j][0]][orientation[j][1]]
-                                                                  in ('███', 'cat', '(m)', 'dog', '[ ]')] == [True]*4:
+                if [True for j in DIRECTIONS if object(j) in OBJECTS] == [True]*4:
                     new_posistion = 'stop'
                     break
-                elif object in ('███', 'cat', '(m)', 'dog', '[ ]'):
+                elif object(new_posistion) in OBJECTS:
                     new_posistion = random.choice(['up', 'right', 'down', 'left'])
-                    object = self.level[orientation[new_posistion][0]][orientation[new_posistion][1]]
                 else:
                     break
             self.level[x][y] = f' {random.randint(1, 9)} '
-            self.level[orientation[new_posistion][0]][orientation[new_posistion][1]] = '(m)'
+            self.level[self.orientation(x, y)[new_posistion][0]][self.orientation(x, y)[new_posistion][1]] = '(m)'
 
     def game(self):
         self.create_level(2)
