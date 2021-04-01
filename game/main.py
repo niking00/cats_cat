@@ -10,7 +10,7 @@ DICT_OBJECTS = {'#': '███',
            'm': '(m)',
            'd': 'dog',
            ']': '[ ]'}
-OBJECTS = ('███', 'cat', '(m)', 'dog', '[ ]')
+OBJECTS = (DICT_OBJECTS[i] for i in DICT_OBJECTS)
 DIRECTIONS = ['up', 'right', 'down', 'left']
 
 
