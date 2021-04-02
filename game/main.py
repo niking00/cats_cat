@@ -2,6 +2,7 @@ import os
 import random
 import keyboard
 import time
+from collections import deque
 directory = os.path.abspath(os.curdir)
 files = os.listdir(path=directory + "\levels")
 
@@ -10,9 +11,44 @@ DICT_OBJECTS = {'#': '███',
            'm': '(m)',
            'd': 'dog',
            ']': '[ ]'}
-OBJECTS = (DICT_OBJECTS[i] for i in DICT_OBJECTS)
+OBJECTS = ('███', 'cat', '(m)', 'dog', '[ ]')
 DIRECTIONS = ['up', 'right', 'down', 'left']
 
+class Algorithms():
+    def matrix_to_graph(self, matrix):
+        graph = {}
+        ways = [[0, 1], [0, -1], [1, 0], [-1, 0]]
+        for y, i in enumerate(matrix):
+            for x, j in enumerate(i):
+                if matrix[x][y] not in OBJECTS:
+                    graph[(x, y)] = []
+                    for way in ways:
+                        if matrix[x + way[0]][y + way[1]] not in OBJECTS:
+                            graph[(x, y)].append((x + way[0], y + way[1]))
+        return graph
+
+    def bfs(self, start, goal, graph):
+        queue = deque([start])
+        visited = {start: None}
+
+        while queue:
+            cur_node = queue.popleft()
+            if cur_node == goal:
+                break
+
+            next_nodes = graph[cur_node]
+            for next_node in next_nodes:
+                if next_node not in visited:
+                    queue.append(next_node)
+                    visited[next_node] = cur_node
+        return visited
+
+    def dogs_way(self, start, goal, visited):
+        cur_node = [goal]
+        print(f'\npath from {goal} to {start}: \n {goal} ', end='')
+        while cur_node != start:
+            cur_node.append(visited[cur_node])
+        return cur_node
 
 class Game:
     def __init__(self):
