@@ -7,7 +7,7 @@ from collections import deque
 TIME_FRAME = 0.05
 
 directory = os.path.abspath(os.curdir)
-files = os.listdir(path=directory + "\levels")
+files = os.listdir(path=directory + "/levels")
 
 DICT_OBJECTS = {'#': '███',
                 'c': 'cat',
@@ -18,6 +18,7 @@ OBJECTS = ['███', '[ ]']
 UNITS = ['(m)', 'dog']
 PERSONAGE = 'cat'
 DIRECTIONS = ['up', 'right', 'down', 'left']
+
 
 class Algorithms():
     def matrix_to_graph(self, matrix):
@@ -56,6 +57,7 @@ class Algorithms():
             way.append(cur_node)
         return way
 
+
 class Game:
     def __init__(self):
         self.cat_position = []
@@ -68,7 +70,7 @@ class Game:
         self.scores = 0
 
     def create_level(self, num_level):
-        with open(directory + '\levels\\' + str(num_level) + '.txt') as file:
+        with open(directory + '/levels/' + str(num_level) + '.txt') as file:
             self.level.append([])
             for j in file.read():
                 if j in DICT_OBJECTS:
@@ -90,7 +92,7 @@ class Game:
 
     def new_frame(self):
         time.sleep(TIME_FRAME)
-        os.system('cls')
+        os.system('clear')
         self.print_level()
 
     def check_positions(self):
@@ -111,7 +113,7 @@ class Game:
                 'right': [x, y + 1],
                 'down': [x + 1, y],
                 'left': [x, y - 1],
-                'stop':  [x, y]}
+                'stop': [x, y]}
 
     def new_list_level_cat(self):
         key = keyboard.read_key()
@@ -143,7 +145,7 @@ class Game:
 
     def new_list_level_mouse(self):
         for i in range(0, len(self.mouse_position), 2):
-            x, y = self.mouse_position[i], self.mouse_position[i+1]
+            x, y = self.mouse_position[i], self.mouse_position[i + 1]
             new_position = random.choice(DIRECTIONS)
             object = lambda pos: self.level[self.orientation(x, y)[pos][0]][self.orientation(x, y)[pos][1]]
             while new_position != 'stop':
@@ -183,7 +185,6 @@ class Game:
             except:
                 self.check_positions()
 
-
     def game(self, num_level):
         self.create_level(num_level)
         while True:
@@ -212,14 +213,16 @@ class Game:
                 break
 
             self.new_frame()
-#TODO:// на перспективу дописать 9 жизней и визуал интерфейс
+
+
+# TODO:// на перспективу дописать 9 жизней и визуал интерфейс
 
 if __name__ == '__main__':
-    os.system('cls')
+    os.system('clear')
     print(files)
     for i in range(1, len(files) + 1):
-        os.system('cls')
+        os.system('clear')
         Game().game(i)
-        os.system('cls')
+        os.system('clear')
         print('GG')
         time.sleep(5)
