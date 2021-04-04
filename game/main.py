@@ -64,6 +64,7 @@ class Game:
         self.exit_position = []
         self.level = []
         self.kill = False
+        self.win = False
         self.scores = 0
 
     def create_level(self, num_level):
@@ -116,98 +117,109 @@ class Game:
         key = keyboard.read_key()
         time.sleep(0.25)
         x, y = self.cat_position[0], self.cat_position[1]
-        while key not in DIRECTIONS:
-            key = keyboard.read_key()
-        while True:
+        while not self.win and not self.kill:
+            while key not in DIRECTIONS:
+                key = keyboard.read_key()
             object = self.level[self.orientation(x, y)[key][0]][self.orientation(x, y)[key][1]]
-            if object in OBJECTS + [UNITS[1]]:
-                if object == OBJECTS[1] and len(self.mouse_position) == 0:
-                    self.level[self.orientation(x, y)[key][0]][self.orientation(x, y)[key][1]] = ' 0 '
+            if object == OBJECTS[0]:
+                key = keyboard.read_key()
+            elif object == OBJECTS[1]:
+                if len(self.mouse_position) == 0:
+                    # self.level[self.orientation(x, y)[key][0]][self.orientation(x, y)[key][1]] = '0'
+                    self.win = True
                 else:
                     key = keyboard.read_key()
             elif object == UNITS[0]:
-                self.level[self.orientation(x, y)[key][0]][self.orientation(x, y)[key][1]] = '20 '
+                self.level[self.orientation(x, y)[key][0]][self.orientation(x, y)[key][1]] = '30'
+            elif object == UNITS[1]:
+                self.kill = True
             else:
                 break
-        self.level[x][y] = f' {random.randint(1, 9)} '
-        self.scores += int(self.level[self.orientation(x, y)[key][0]][self.orientation(x, y)[key][1]].strip())
-        self.level[self.orientation(x, y)[key][0]][self.orientation(x, y)[key][1]] = 'cat'
+        if not self.kill and not self.win:
+            self.level[x][y] = f' {random.randint(1, 9)} '
+            self.scores += int(self.level[self.orientation(x, y)[key][0]][self.orientation(x, y)[key][1]].strip())
+            self.level[self.orientation(x, y)[key][0]][self.orientation(x, y)[key][1]] = PERSONAGE
         self.check_positions()
 
     def new_list_level_mouse(self):
         for i in range(0, len(self.mouse_position), 2):
             x, y = self.mouse_position[i], self.mouse_position[i+1]
-            new_posistion = random.choice(DIRECTIONS)
+            new_position = random.choice(DIRECTIONS)
             object = lambda pos: self.level[self.orientation(x, y)[pos][0]][self.orientation(x, y)[pos][1]]
-            while True:
-                if [True for j in DIRECTIONS if object(j) in OBJECTS + [PERSONAGE] + UNITS] == [True]*4:
-                    new_posistion = 'stop'
-                    break
-                elif object(new_posistion) in OBJECTS + [PERSONAGE] + UNITS:
-                    new_posistion = random.choice(DIRECTIONS)
+            while new_position != 'stop':
+                if [True for j in DIRECTIONS if object(j) in OBJECTS + [PERSONAGE] + UNITS] == [True] * 4:
+                    new_position = 'stop'
+                elif object(new_position) in OBJECTS + [PERSONAGE] + UNITS:
+                    new_position = random.choice(DIRECTIONS)
                 else:
                     break
             self.level[x][y] = f' {random.randint(1, 9)} '
-            self.level[self.orientation(x, y)[new_posistion][0]][self.orientation(x, y)[new_posistion][1]] = UNITS[0]
+            self.level[self.orientation(x, y)[new_position][0]][self.orientation(x, y)[new_position][1]] = UNITS[0]
             self.new_frame()
+            self.check_positions()
 
     def new_list_level_dog(self):
         for i in range(0, len(self.dog_position), 2):
             x, y = self.dog_position[i], self.dog_position[i + 1]
             graph = Algorithms().matrix_to_graph(self.level)
             start = (x, y)
-            goal = (self.cat_position[0], self.cat_position[1])
+
             try:
+                goal = (self.cat_position[0], self.cat_position[1])
                 visited = Algorithms().bfs(start, goal, graph)
                 way = Algorithms().all_way(start, goal, visited)
+
                 self.level[x][y] = f' {random.randint(1, 9)} '
                 if len(way) != 1:
                     self.level[way[-2][0]][way[-2][1]] = UNITS[1]
                 else:
-                    self.level[way[-1][0]][way[-1][1]] = UNITS[1]
+                    time.sleep(1)
+                    self.level[self.cat_position[0]][self.cat_position[1]] = UNITS[1]
                     self.kill = True
-            except:
-                pass
-            self.new_frame()
-
-
-    def game(self):
-        self.create_level(2)
-        while True:
-            self.print_level()
-            self.check_positions()
-            if self.scores >= 30 and self.cat_position != self.exit_position:
-                self.new_list_level_cat()
-                if self.cat_position == self.exit_position:
                     break
-                self.scores -= 15
-                os.system('cls')
-                self.print_level()
+
+                self.new_frame()
+                self.check_positions()
+            except:
+                self.check_positions()
+
+
+    def game(self, num_level):
+        self.create_level(num_level)
+        while True:
+            self.new_frame()
+            self.check_positions()
+            while self.scores >= 30 and not self.win:
                 self.new_list_level_cat()
-                self.scores -= 15
+                if self.win or self.kill:
+                    break
+                self.scores -= 30
+                self.new_frame()
             else:
                 self.new_list_level_cat()
-            if self.cat_position == self.exit_position:
-                break
+
             self.new_list_level_mouse()
             self.new_list_level_dog()
 
             if self.kill:
                 self.new_frame()
-                self.check_positions()
-                self.level[self.dog_position[0]][self.dog_position[1]] = f' {random.randint(1, 9)} '
-                self.level[self.cat_position[0]][self.cat_position[1]] = UNITS[1]
-                self.new_frame()
                 time.sleep(1)
                 break
 
-            os.system('cls')
+            if self.win:
+                self.level[self.exit_position[0]][self.exit_position[1]] = PERSONAGE
+                self.new_frame()
+                break
 
+            self.new_frame()
 #TODO:// на перспективу дописать 9 жизней и визуал интерфейс
 
 if __name__ == '__main__':
     os.system('cls')
-    Game().game()
-    os.system('cls')
-    print('GG')
-    time.sleep(5)
+    print(files)
+    for i in range(1, len(files) + 1):
+        os.system('cls')
+        Game().game(i)
+        os.system('cls')
+        print('GG')
+        time.sleep(5)
