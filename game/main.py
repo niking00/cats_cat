@@ -2,21 +2,32 @@ import os
 import random
 import keyboard
 import time
+import media
 from collections import deque
+from colorama import init, Fore, Back
+init()
 
-TIME_FRAME = 0.05
+TIME_FRAME = 0.01
 
 directory = os.path.abspath(os.curdir)
 files = os.listdir(path=directory + "\levels")
 
-DICT_OBJECTS = {'#': '███',
+DICT_OBJECTS = {'#': '   ',
                 'c': 'cat',
                 'm': '(m)',
                 'd': 'dog',
                 ']': '[ ]'}
-OBJECTS = ['███', '[ ]']
+
+OBJECTS = ['   ', '[ ]']
 UNITS = ['(m)', 'dog']
 PERSONAGE = 'cat'
+
+COLOR_ALL = {OBJECTS[0]: Back.LIGHTBLACK_EX, OBJECTS[1]: Fore.MAGENTA,
+             UNITS[0]: Fore.GREEN, UNITS[1]: Fore.RED,
+             PERSONAGE: Fore.LIGHTWHITE_EX,
+             'SCORES': Fore.YELLOW}
+
+
 DIRECTIONS = ['up', 'right', 'down', 'left']
 
 class Algorithms():
@@ -82,9 +93,12 @@ class Game:
         for i in self.level:
             for j, q in enumerate(i):
                 if j != len(i) - 1:
-                    print(q, end='')
+                    if q.strip().isdigit():
+                        print(COLOR_ALL['SCORES'] + q + Back.RESET + Fore.RESET, end='')
+                    else:
+                        print(COLOR_ALL[q] + q + Back.RESET + Fore.RESET, end='')
                 else:
-                    print(q)
+                    print(COLOR_ALL[q] + q + Back.RESET + Fore.RESET)
         print(f'\nТвои очки: {self.scores}')
         print(f'Ты можешь сделать за этот ход {self.scores // 30 + 1} движение')
 
@@ -113,9 +127,12 @@ class Game:
                 'left': [x, y - 1],
                 'stop':  [x, y]}
 
+    def check_object(self, x, y, pos):
+        return self.level[self.orientation(x, y)[pos][0]][self.orientation(x, y)[pos][1]]
+
     def new_list_level_cat(self):
         key = keyboard.read_key()
-        time.sleep(0.25)
+        time.sleep(0.1)
         x, y = self.cat_position[0], self.cat_position[1]
         while not self.win and not self.kill:
             while key not in DIRECTIONS:
@@ -125,7 +142,6 @@ class Game:
                 key = keyboard.read_key()
             elif object == OBJECTS[1]:
                 if len(self.mouse_position) == 0:
-                    # self.level[self.orientation(x, y)[key][0]][self.orientation(x, y)[key][1]] = '0'
                     self.win = True
                 else:
                     key = keyboard.read_key()
@@ -140,22 +156,30 @@ class Game:
             self.scores += int(self.level[self.orientation(x, y)[key][0]][self.orientation(x, y)[key][1]].strip())
             self.level[self.orientation(x, y)[key][0]][self.orientation(x, y)[key][1]] = PERSONAGE
         self.check_positions()
+        self.new_frame()
 
     def new_list_level_mouse(self):
         for i in range(0, len(self.mouse_position), 2):
             x, y = self.mouse_position[i], self.mouse_position[i+1]
             new_position = random.choice(DIRECTIONS)
-            object = lambda pos: self.level[self.orientation(x, y)[pos][0]][self.orientation(x, y)[pos][1]]
+            temp = 0
             while new_position != 'stop':
-                if [True for j in DIRECTIONS if object(j) in OBJECTS + [PERSONAGE] + UNITS] == [True] * 4:
+                if [True for j in DIRECTIONS if self.check_object(x, y, j) in OBJECTS + [PERSONAGE] + UNITS] == [True]*4:
                     new_position = 'stop'
-                elif object(new_position) in OBJECTS + [PERSONAGE] + UNITS:
+                elif self.check_object(x, y, new_position) in OBJECTS + [PERSONAGE] + UNITS:
                     new_position = random.choice(DIRECTIONS)
                 else:
-                    break
+                    x1, y1 = self.orientation(x, y)[new_position][0], self.orientation(x, y)[new_position][1]
+                    if True in [True for j in DIRECTIONS if self.check_object(x1, y1, j) == PERSONAGE]:
+                        if temp < 10:
+                            new_position = random.choice(DIRECTIONS)
+                            temp += 1
+                        else:
+                            new_position = 'stop'
+                    else:
+                        break
             self.level[x][y] = f' {random.randint(1, 9)} '
             self.level[self.orientation(x, y)[new_position][0]][self.orientation(x, y)[new_position][1]] = UNITS[0]
-            self.new_frame()
             self.check_positions()
 
     def new_list_level_dog(self):
@@ -163,7 +187,6 @@ class Game:
             x, y = self.dog_position[i], self.dog_position[i + 1]
             graph = Algorithms().matrix_to_graph(self.level)
             start = (x, y)
-
             try:
                 goal = (self.cat_position[0], self.cat_position[1])
                 visited = Algorithms().bfs(start, goal, graph)
@@ -173,19 +196,19 @@ class Game:
                 if len(way) != 1:
                     self.level[way[-2][0]][way[-2][1]] = UNITS[1]
                 else:
-                    time.sleep(1)
+                    time.sleep(0.5)
                     self.level[self.cat_position[0]][self.cat_position[1]] = UNITS[1]
+                    self.new_frame()
                     self.kill = True
                     break
-
-                self.new_frame()
                 self.check_positions()
-            except:
+            finally:
                 self.check_positions()
 
 
     def game(self, num_level):
         self.create_level(num_level)
+
         while True:
             self.new_frame()
             self.check_positions()
@@ -207,6 +230,7 @@ class Game:
                 break
 
             if self.win:
+                self.level[self.cat_position[0]][self.cat_position[1]] = f' {random.randint(1, 9)} '
                 self.level[self.exit_position[0]][self.exit_position[1]] = PERSONAGE
                 self.new_frame()
                 break
@@ -215,11 +239,12 @@ class Game:
 #TODO:// на перспективу дописать 9 жизней и визуал интерфейс
 
 if __name__ == '__main__':
-    os.system('cls')
-    print(files)
     for i in range(1, len(files) + 1):
         os.system('cls')
+        song = media.load(directory + '\music' + f'\s{i}.mp3')
+        player = song.play()
         Game().game(i)
+        player.next_source()
         os.system('cls')
         print('GG')
-        time.sleep(5)
+        time.sleep(0.1)
