@@ -7,7 +7,7 @@ from collections import deque
 from colorama import init, Fore, Back
 init()
 
-TIME_FRAME = 0.01
+TIME_FRAME = 0
 
 directory = os.path.abspath(os.curdir)
 files = os.listdir(path=directory + "\levels")
@@ -156,7 +156,6 @@ class Game:
             self.scores += int(self.level[self.orientation(x, y)[key][0]][self.orientation(x, y)[key][1]].strip())
             self.level[self.orientation(x, y)[key][0]][self.orientation(x, y)[key][1]] = PERSONAGE
         self.check_positions()
-        self.new_frame()
 
     def new_list_level_mouse(self):
         for i in range(0, len(self.mouse_position), 2):
@@ -198,7 +197,6 @@ class Game:
                 else:
                     time.sleep(0.5)
                     self.level[self.cat_position[0]][self.cat_position[1]] = UNITS[1]
-                    self.new_frame()
                     self.kill = True
                     break
                 self.check_positions()
@@ -220,6 +218,7 @@ class Game:
                 self.new_frame()
             else:
                 self.new_list_level_cat()
+                self.new_frame()
 
             self.new_list_level_mouse()
             self.new_list_level_dog()
