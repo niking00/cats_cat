@@ -2,12 +2,14 @@ import os
 import random
 import keyboard
 import time
+import sys
 import media
 from collections import deque
 from colorama import init, Fore, Back
 init()
 
 TIME_FRAME = 0
+TIME_CLICK = 0.1
 
 directory = os.path.abspath(os.curdir)
 files = os.listdir(path=directory + "\levels")
@@ -99,6 +101,7 @@ class Game:
                         print(COLOR_ALL[q] + q + Back.RESET + Fore.RESET, end='')
                 else:
                     print(COLOR_ALL[q] + q + Back.RESET + Fore.RESET)
+                sys.stdout.flush()
         print(f'\nТвои очки: {self.scores}')
         print(f'Ты можешь сделать за этот ход {self.scores // 30 + 1} движение')
 
@@ -132,7 +135,7 @@ class Game:
 
     def new_list_level_cat(self):
         key = keyboard.read_key()
-        time.sleep(0.1)
+        time.sleep(TIME_CLICK)
         x, y = self.cat_position[0], self.cat_position[1]
         while not self.win and not self.kill:
             while key not in DIRECTIONS:
@@ -200,7 +203,7 @@ class Game:
                     self.kill = True
                     break
                 self.check_positions()
-            finally:
+            except:
                 self.check_positions()
 
 
@@ -234,11 +237,10 @@ class Game:
                 self.new_frame()
                 break
 
-            self.new_frame()
 #TODO:// на перспективу дописать 9 жизней и визуал интерфейс
 
 if __name__ == '__main__':
-    for i in range(1, len(files) + 1):
+    for i in range(2, len(files) + 1):
         os.system('cls')
         song = media.load(directory + '\music' + f'\s{i}.mp3')
         player = song.play()
