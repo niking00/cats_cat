@@ -101,8 +101,5 @@ class Menu:
             song = pyglet.media.load(file, streaming=False).play()
             time.sleep(length_file)
 
-while True:
-    Menu().check_menu()
-
 
 
