@@ -5,7 +5,7 @@ import os
 import time
 from const import OBJECTS, UNITS, PERSONAGE, DICT_OBJECTS, TIME_FRAME, DIRECTORY
 
-COLOR_ALL = {OBJECTS[0]: Back.LIGHTBLACK_EX, OBJECTS[1]: Fore.MAGENTA,
+COLOR_ALL = {OBJECTS[0]: Back.LIGHTBLACK_EX, OBJECTS[1]: Fore.CYAN,
              UNITS[0]: Fore.GREEN, UNITS[1]: Fore.RED,
              PERSONAGE: Fore.LIGHTWHITE_EX,
              'SCORES': Fore.YELLOW}

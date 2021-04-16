@@ -5,8 +5,8 @@ class Algorithms:
     def matrix_to_graph(self, matrix):
         graph = {}
         ways = [[0, 1], [0, -1], [1, 0], [-1, 0]]
-        for y, i in enumerate(matrix):
-            for x, j in enumerate(i):
+        for x, i in enumerate(matrix):
+            for y, j in enumerate(i):
                 if matrix[x][y] not in OBJECTS + [UNITS[0]]:
                     graph[(x, y)] = []
                     for way in ways:
