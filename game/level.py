@@ -26,7 +26,7 @@ def create_level(num_level):
     return level
 
 
-def print_level(level, scores):
+def print_level(level, scores, start_time):
     for i in level:
         for j, q in enumerate(i):
             if j != len(i) - 1:
@@ -39,8 +39,10 @@ def print_level(level, scores):
             sys.stdout.flush()
     print(f'\nТвои очки: {scores}')
     print(f'Ты можешь сделать за этот ход {scores // 30 + 1} движение')
+    sec = int(time.time() - start_time)
+    print(f'Твоё время {sec // 60} минут {sec - (sec // 60)} секунд')
 
-def new_frame(level, scores):
+def new_frame(level, scores, start_time):
     time.sleep(TIME_FRAME)
     os.system('cls')
-    print_level(level, scores)
+    print_level(level, scores, start_time)

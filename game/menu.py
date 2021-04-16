@@ -100,6 +100,3 @@ class Menu:
             length_file = MP3(file).info.length
             song = pyglet.media.load(file, streaming=False).play()
             time.sleep(length_file)
-
-
-

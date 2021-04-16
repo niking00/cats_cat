@@ -120,27 +120,26 @@ class Game:
     def game(self, num_level):
         self.level = create_level(num_level)
         while True:
-            new_frame(self.level, self.scores)
+            new_frame(self.level, self.scores, old_time)
             self.check_positions()
             while self.scores >= 30 and not self.win:
                 self.new_list_level_cat()
                 if self.win or self.kill:
                     break
                 self.scores -= 30
-                new_frame(self.level, self.scores)
+                new_frame(self.level, self.scores, old_time)
             else:
                 self.new_list_level_cat()
-                new_frame(self.level, self.scores)
             self.new_list_level_mouse()
             self.new_list_level_dog()
             if self.kill:
-                new_frame(self.level, self.scores)
+                new_frame(self.level, self.scores, old_time)
                 time.sleep(1)
                 return False
             if self.win:
                 self.level[self.cat_position[0]][self.cat_position[1]] = f' {random.randint(1, 9)} '
                 self.level[self.exit_position[0]][self.exit_position[1]] = PERSONAGE
-                new_frame(self.level, self.scores)
+                new_frame(self.level, self.scores, old_time)
                 return True
 
     def play_music(self):
@@ -156,10 +155,13 @@ class Game:
     def play(self):
         global song
         global stop_music
+        global old_time
         stop_music = False
         player = threading.Thread(target=self.play_music)
         player.start()
-        for i in range(1, len(LEVELS) + 1):
+        old_time = time.time()
+        # for i in range(1, len(LEVELS) + 1):
+        for i in range(1, 1 + 1):
             win = False
             while not win:
                 os.system('cls')
@@ -172,8 +174,13 @@ class Game:
                 time.sleep(2)
         stop_music = True
         song.next_source()
-        time.sleep(2)
 
+        print('Хорошая работа, Але... Ой, а как тебя зовут, юзер?')
+        name = input('Моё имя (оно будет зваписано в турнирной таблице) : ')
+        os.system('cls')
+        print('Отлично, хорошая работа, ' + name + '!',
+              'Ваше имя будет увековечено в турнирной таблице!')
+        time.sleep(5)
 
 
 
