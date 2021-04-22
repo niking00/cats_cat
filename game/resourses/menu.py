@@ -90,13 +90,15 @@ class Menu:
                     os.system('cls')
                     with open(DIRECTORY + "/resourses/about_the_game.txt", "r", encoding="utf-8") as file:
                         print(file.read())
-                    time.sleep(5)
+                    while keyboard.read_key() != 'esc':
+                        time.sleep(0.1)
 
                 elif pos == self.team:
                     os.system('cls')
                     with open(DIRECTORY + "/resourses/team.txt", "r", encoding="utf-8") as file:
                         print(file.read())
-                    time.sleep(4)
+                    while keyboard.read_key() != 'esc':
+                        time.sleep(0.1)
             os.system('cls')
 
     def print_results(self):
